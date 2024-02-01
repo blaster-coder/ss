@@ -1,0 +1,533 @@
+function doAjax(url,funcion) //parametres minims però es poden pasar més 'parells clau-valor'
+{
+//parametres: nom.php, funcio callback,clau1,valor1,clau2,valor2,...
+	var parametres = "";
+	if (arguments.length % 2 != 0) 
+	{
+		alert("Numero de parametros erroneo");
+		return;
+	}
+	for(a=2;a<arguments.length;a+=2)
+	{
+		parametres += arguments[a]+"="+encodeURIComponent(arguments[a+1])+"&";
+	}
+	parametres = parametres.slice(0, -1);
+	var xmlhttp = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+	xmlhttp.open('post', url, 'true');
+	xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	xmlhttp.send(parametres); 	
+	xmlhttp.onreadystatechange = function() 
+	{		
+	if (xmlhttp.readyState == 4 && xmlhttp.status == 200) eval(funcion+"(xmlhttp.responseText)");
+	}    
+}
+
+function doAjaxE(url,funcion) //aquesta versió passa directament el primer parametre
+//a la funció de retorn
+{
+//parametres: traspas,nom.php, funcio callback,clau1,valor1,clau2,valor2,...
+
+	shift = [].shift; //hem de crear un objecte "shift" amb el prototip d'array
+	//ja que arguments no es realment un array i no te aquest métode
+	traspas = shift.apply(arguments);//apliquem l'objecte shift a arguments i
+	//carreguem el valor extret a traspas (o el que es el mateix, treiem el primer valor dels arguments
+	//i el fiquem a la variable traspas)
+	var parametres = "";
+	if (arguments.length % 2 != 0) 
+	{
+		alert("Numero de parametros erroneo");
+		return;
+	}
+	for(a=2;a<arguments.length;a+=2)
+	{
+		parametres += arguments[a]+"="+encodeURIComponent(arguments[a+1])+"&";
+	}
+	parametres = parametres.slice(0, -1);
+	var xmlhttp = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+	xmlhttp.open('post', url, 'true');
+	xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	xmlhttp.send(parametres); 	
+	xmlhttp.onreadystatechange = function() 
+	{		
+	if (xmlhttp.readyState == 4 && xmlhttp.status == 200) eval(funcion+"(traspas, xmlhttp.responseText)");
+	}    
+}
+
+function nif(dni) {
+//funcio per verificar DNIs
+//retorna
+//OK si correcte
+//KO si erroni
+//KK si format extrany
+  var numero
+  var leti
+  var letra
+  var expresion_regular_dni
+ 
+  expresion_regular_dni = /^\d{8}[a-zA-Z]$/;
+ 
+  if(expresion_regular_dni.test (dni) == true){
+     numero = dni.substr(0,dni.length-1);
+     leti = dni.substr(dni.length-1,1);
+     numero = numero % 23;
+     letra='TRWAGMYFPDXBNJZSQVHLCKET';
+     letra=letra.substring(numero,numero+1);
+    if (letra!=leti.toUpperCase()) {
+       return('KO');
+     }else{
+       return('OK');
+     }
+  }else{
+     return('KK');
+   }
+}
+
+function pad(n){return n<10 ? '0'+n : n} //afegeix un 0 (zero) als numeros inferiors a 10...
+
+//Obre una finestra amb els paràmetres indicats
+function abrirVentana(url,anchura,altura,titulo) {
+    window.open(url, titulo, "directories=no, location=no, menubar=no, scrollbars=no, statusbar=no, tittlebar=no, width="+anchura+", height="+altura+"");
+} 
+
+/* 	Autor:		jig 20170125
+	Funció: 	enviarPdf: 	enviar PDFs per mail sense cap intervenció de l'usuari
+	Inserció:	1- cridar la funció des de javascript
+				2- incloure enviardocpdf.php a una carpeta anomenada php i bessona de la que contingui el js on es cridi la funció
+				3- incloure la carpeta mpdf60 a la mateixa carpeta php
+				4- incloure els arxius "class.phpmailer.php", class.smtp.php" i "PHPMailerAutoload.php" a la mateixa carpeta php 
+				5- definir define('NOMCUENTAENVIA','xxx'); define('CUENTAENVIA','xxx@totenapps.com'); define('SERVERCUENTAENVIA','mail.totenapps.com'); define('PASSCUENTAENVIA','xxxxxx');
+				6- Si es desitja que la eventual resposta del receptor del mail vagi adreçada a un mail determinat, cal que existeixi una variable $_SESSION['nombre'] i $_SESSION['email']
+					Si no existeixen, una eventual resposta del receptor, s'adreçarà al compte email d'enviament.
+					Existeix la possibilitat d'enviar aquests valors per POST com a $_POST['nombreenvia'] i $_POST['emailenviaa'], respectivament, en cas de fer servir 'enviardocpdf.php' desde una aplicació Android. 
+				7- La funció de retorn s'ha de definir amb un paràmetre, que rebrà 'Todo ha salido bien' o l'error corresponent.
+	Paràmetres:	nombredestino			->	string amb un nom lliure de destinatari de mail (per més d'un nom separar amb comes, aquests seràn correlatius a les direccions. Si només s'especifica un nom aquest es farà servir per a totes les direccions)
+				emaildestino			->	string amb una adreça de mail existent (per més d'una direcció separar amb comes)
+				asunto					->	string amb l'"asunto" que ha de posar al mail
+				mensaje					->	string amb format HTML que conté el missatge que ha de sortir al mail
+				nombreficheroadjunto	->	string amb el nom que lliurement es vulgui pel PDF que sortirà adjunt al mail (no posar la extensió!!!!!)
+				hojacss					->	string amb el nom que lliurement es vulgui pel css que formatarà el PDF (no posar el path!!!!!)(l'arxiu css ha d'estar a una carpeta css bessona de la que contingui els php!!!!)
+				htmldocumento			->	string amb el innerHTML d'un objecte, que serà el que apareixerà al PDF però formatat amb el css "hojacss"
+				funcionretorno			->	string amb el nom de la funció de javascript que s'executarà una vegada enviat el PDF
+*/
+function enviarPdf(nombredestino,emaildestino,asunto,mensaje,nombreficheroadjunto,hojacss,htmldocumento,funcionretorno){
+htmldocumento = window.btoa(unescape(encodeURIComponent(htmldocumento)));	
+doAjax('../libs/llibreries.php',funcionretorno,'funcion','enviarpdf','nombredestino',nombredestino,'emaildestino',emaildestino,'asunto',asunto,'mensaje',mensaje,'nombreficheroadjunto',nombreficheroadjunto,'hojacss',hojacss,'htmldocumento',htmldocumento,'funcionretorno',funcionretorno);
+}
+
+/* 	Autor:		jig 20170125
+	Funció: 	crearPdf: 	crear i presentar PDFs a la part baixa de la pantalla sense cap intervenció de l'usuari
+	Inserció:	1- cridar la funció des de javascript
+				2- incloure creardocpdf.php a una carpeta anomenada php i bessona de la que contingui el js on es cridi la funció
+				3- incloure la carpeta mpdf60 a la mateixa carpeta php
+	Paràmetres:	htmldocumento			->	string amb el innerHTML d'un objecte, que serà el que apareixerà al PDF però formatat amb el css "hojacss"
+				hojacss					->	string amb el nom que lliurement es vulgui pel css que formatarà el PDF (no posar el path!!!!!)(l'arxiu css ha d'estar a una carpeta css bessona de la que contingui els php!!!!)
+				nombrefichero			->	string amb el nom que lliurement es vulgui pel PDF que es generarà (no posar la extensió!!!!!)
+*/
+function crearPdf(htmldocumento,hojacss,nombrefichero){
+htmldocumento = htmldocumento.replace(/'/g,"&&&&");
+htmldocumento = window.btoa(unescape(encodeURIComponent(htmldocumento)));	
+document.getElementsByTagName('BODY')[0].innerHTML +="<form style='display:none;' name='formularipdf' id='formularipdf' action='../libs/llibreries.php' method='POST' target ='_blank'><input type='text' name='htmldocumento' value='"+htmldocumento+"' hidden></input><input type='text' name='hojacss' value='"+hojacss+"' hidden></input><input type='text' name='nombrefichero' value='"+nombrefichero+"' hidden></input><input type='text' name='funcion' value='crearpdf' hidden></input></form>";
+document.getElementById('formularipdf').submit();
+document.getElementById('formularipdf').parentNode.removeChild(document.getElementById('formularipdf'));
+}
+
+/* 	Autor:		jig 20170126
+	Funció: 	enviarMail: 	enviar un email sense cap intervenció de l'usuari
+	Inserció:	1- cridar la funció des de javascript
+				2- incloure enviarmail.php a una carpeta anomenada php i bessona de la que contingui el js on es cridi la funció				
+				3- incloure els arxius "class.phpmailer.php", class.smtp.php" i "PHPMailerAutoload.php" a la mateixa carpeta php 
+				4- definir define('NOMCUENTAENVIA','xxx'); define('CUENTAENVIA','xxx@totenapps.com'); define('SERVERCUENTAENVIA','mail.totenapps.com'); define('PASSCUENTAENVIA','xxxxxx');
+				5- Si es desitja que la eventual resposta del receptor del mail vagi adreçada a un mail determinat, cal que existeixi una variable $_SESSION['nombre'] i $_SESSION['email']
+					Si no existeixen, una eventual resposta del receptor, s'adreçarà al compte email d'enviament.
+					Existeix la possibilitat d'enviar aquests valors per POST com a $_POST['nombreenvia'] i $_POST['emailenviaa'], respectivament, en cas de fer servir 'enviardocpdf.php' desde una aplicació Android. 
+				6- La funció de retorn s'ha de definir amb un paràmetre, que rebrà 'Todo ha salido bien' o l'error corresponent.
+	Paràmetres:	nombredestino			->	string amb un nom lliure de destinatari de mail (per més d'un nom separar amb comes, aquests seràn correlatius a les direccions. Si només s'especifica un nom aquest es farà servir per a totes les direccions)
+				emaildestino			->	string amb una adreça de mail existent (per més d'una direcció separar amb comes)
+				asunto					->	string amb l'"asunto" que ha de posar al mail 
+				mensaje					->	string amb format HTML que conté el missatge que ha de sortir al mail
+				funcionretorno			->	string amb el nom de la funció de javascript que s'executarà una vegada enviat l'email
+*/
+function enviarMail(nombredestino,emaildestino,asunto,mensaje,funcionretorno){
+doAjax('../libs/llibreries.php',funcionretorno,'funcion','enviarmail','nombredestino',nombredestino,'emaildestino',emaildestino,'asunto',asunto,'mensaje',mensaje,'funcionretorno',funcionretorno);
+}
+
+function carregarDrag(){
+    posicio=0;
+
+    // El Navegador es Internet Explorer
+    if(navigator.userAgent.indexOf("MSIE")>=0) {
+	    navegador=0;
+	    }
+    // El Navegador es un altre navegador
+    else {
+	    navegador=1;
+	    }
+	
+	assignarFuncioArrossegar();
+}
+ 
+function evitarEvents(event){
+    // Funció que evita que s'executin events adicionals
+    if(navegador==0){
+        window.event.cancelBubble=true;
+        window.event.returnValue=false;
+    }
+    if(navegador==1) event.preventDefault();
+}
+ 
+function iniciarMoviment(event, objMogut){
+    objMoviment=objMogut;
+   
+     // Obtenim la posició del cursor
+    if(navegador==0)
+     {
+        cursorIniciX=window.event.clientX+document.documentElement.scrollLeft+document.body.scrollLeft;
+        cursorIniciY=window.event.clientY+document.documentElement.scrollTop+document.body.scrollTop;
+ 
+        document.attachEvent("onmousemove", enMoviment);
+        document.attachEvent("onmouseup", finalMoviment);
+    }
+    if(navegador==1)
+    {   
+        cursorIniciX=event.clientX+window.scrollX;
+        cursorIniciY=event.clientY+window.scrollY;
+       
+        document.addEventListener("mousemove", enMoviment, true);
+        document.addEventListener("mouseup", finalMoviment, true);
+    }
+   
+    posInicialObjX=parseInt(objMoviment.style.left);
+    posInicialObjY=parseInt(objMoviment.style.top);
+    // Actualitzem la posició de l'elelement
+    objMoviment.style.zIndex=++posicio;
+   
+    //evitarEvents(event);
+}
+ 
+function enMoviment(event){ 
+    var xActual, yActual;
+    if(navegador==0)
+    {   
+        xActual=window.event.clientX+document.documentElement.scrollLeft+document.body.scrollLeft;
+        yActual=window.event.clientY+document.documentElement.scrollTop+document.body.scrollTop;
+    } 
+    if(navegador==1)
+    {
+        xActual=event.clientX+window.scrollX;
+        yActual=event.clientY+window.scrollY;
+    }
+   
+    objMoviment.style.left=(posInicialObjX+xActual-cursorIniciX)+"px";
+    objMoviment.style.top=(posInicialObjY+yActual-cursorIniciY)+"px";
+ 
+    evitarEvents(event);
+}
+ 
+function finalMoviment(event){
+    if(navegador==0){   
+        document.detachEvent("onmousemove", enMoviment);
+        document.detachEvent("onmouseup", finalMoviment);
+    }
+    if(navegador==1){
+        document.removeEventListener("mousemove", enMoviment, true);
+        document.removeEventListener("mouseup", finalMoviment, true);
+    }
+}
+
+function assignarFuncioArrossegar(){ //Funció AUTOMÀTICA que assigna els events pertinents a TOTS els Objectes segons la seva class, cal tornar-la a cridar si es creen elements nous!
+	var elementsArrossegables = document.getElementsByClassName("arrossegable");
+	var elementsParesArrossegables = document.getElementsByClassName("parearrossegable");
+	
+	var elementsDraggables = document.getElementsByClassName("draggable");
+	var elementsDropables = document.getElementsByClassName("zonadrop"); 
+	    
+	for(d=0;d<elementsArrossegables.length;d++){
+		elementsArrossegables[d].setAttribute("onmousedown", "iniciarMoviment(event, this)");
+		elementsArrossegables[d].style.position="absolute";
+		topInicialObj = window.getComputedStyle(elementsArrossegables[d],true).top;
+		leftInicialObj = window.getComputedStyle(elementsArrossegables[d],true).left;
+		if(topInicialObj=='auto'){elementsArrossegables[d].style.top="0px";}
+		else{elementsArrossegables[d].style.top=topInicialObj;}
+		if(leftInicialObj=='auto'){elementsArrossegables[d].style.left="0px";}
+		else{elementsArrossegables[d].style.left=leftInicialObj;}
+		elementsArrossegables[d].style.cursor="move";
+	}
+	
+	for(dp=0;dp<elementsParesArrossegables.length;dp++){
+		elementsParesArrossegables[dp].setAttribute("onmousedown", "iniciarMoviment(event, this.parentNode)");
+		elementsParesArrossegables[dp].parentNode.style.position="absolute";
+		topInicialObj = window.getComputedStyle(elementsParesArrossegables[dp].parentNode,true).top;
+		leftInicialObj = window.getComputedStyle(elementsParesArrossegables[dp].parentNode,true).left;
+		if(topInicialObj=='auto'){elementsParesArrossegables[dp].parentNode.style.top="0px";}
+		else{elementsParesArrossegables[dp].parentNode.style.top=topInicialObj;}
+		if(leftInicialObj=='auto'){elementsParesArrossegables[dp].parentNode.style.left="0px";}
+		else{elementsParesArrossegables[dp].parentNode.style.left=leftInicialObj;}
+		elementsParesArrossegables[dp].style.cursor="move";
+	}
+	
+	for(dd=0;dd<elementsDraggables.length;dd++){
+		elementsDraggables[dd].setAttribute("ondragstart", "drag(event)");
+		elementsDraggables[dd].draggable="true";
+		elementsDraggables[dd].style.cursor="move";
+	}
+	
+		for(dz=0;dz<elementsDropables.length;dz++){
+		elementsDropables[dz].setAttribute("ondrop", "drop(event)");
+		elementsDropables[dz].setAttribute("ondragover", "allowDrop(event)");
+		elementsDropables[dz].style.cursor="crosshair";
+	}
+}
+
+var objDragado; //elemento objeto del DRAG (class=draggable).
+
+function allowDrop(ev){
+	ev.preventDefault();
+	}
+
+function drag(ev){
+	objDragado = ev.target; 
+	}
+
+function drop(ev){
+    ev.preventDefault();
+	//Si se desea que se ejecute una función especifica en el DROP, hay que incluirla en el data-funciondrop del elemento objeto del DROP (destino, class='zonadrop'). 
+	if(ev.target.dataset.funciondrop){
+		eval(ev.target.dataset.funciondrop); //Què passa al executarse el DROP SI está definido data-funciondrop (incluir ev.target como parámetro de tu función para pasarse el elemento objeto del DROP).
+	}
+	else{
+		ev.target.appendChild(objDragado); //Què passa al executarse el DROP si NO está definido data-funciondrop.
+	}
+}
+
+function teClase(objclase,selector) { //Funció per a saber si un Objecte té una Class determinada, primer pàrametre = Objecte i segon paràmetre = Class que busquem.
+    var claseObj = " " + selector + " ";
+    var rclass = /[\n\t\r]/g;
+    
+        if ((" " + objclase.className + " ").replace(rclass, " ").indexOf(claseObj) > -1) {
+            return true;
+        }
+        else{
+	        return false;
+        }
+}
+
+function assignarFuncioArrossegarIndividual(objcarregar){  //Funció que assigna els events pertinents a UN Objecte segons la seva class.
+
+var objAssignar = objcarregar;
+
+if (teClase(objAssignar,"arrossegable") == true){
+		objAssignar.setAttribute("onmousedown", "iniciarMoviment(event, this)");
+		objAssignar.style.position="absolute";
+		topInicialObj = window.getComputedStyle(objAssignar,true).top;
+		leftInicialObj = window.getComputedStyle(objAssignar,true).left;
+		if(topInicialObj=='auto'){objAssignar.style.top="0px";}
+		else{objAssignar.style.top=topInicialObj;}
+		if(leftInicialObj=='auto'){objAssignar.style.left="0px";}
+		else{objAssignar.style.left=leftInicialObj;}
+		objAssignar.style.cursor="move";
+}
+
+else if (teClase(objAssignar,"parearrossegable") == true){
+		objAssignar.setAttribute("onmousedown", "iniciarMoviment(event, this.parentNode)");
+		objAssignar.parentNode.style.position="absolute";
+		topInicialObj = window.getComputedStyle(objAssignar.parentNode,true).top;
+		leftInicialObj = window.getComputedStyle(objAssignar.parentNode,true).left;
+		if(topInicialObj=='auto'){objAssignar.parentNode.style.top="0px";}
+		else{objAssignar.parentNode.style.top=topInicialObj;}
+		if(leftInicialObj=='auto'){objAssignar.parentNode.style.left="0px";}
+		else{objAssignar.parentNode.style.left=leftInicialObj;}
+		objAssignar.style.cursor="move";
+}
+
+else if (teClase(objAssignar,"draggable") == true){
+		objAssignar.setAttribute("ondragstart", "drag(event)");
+		objAssignar.draggable="true";
+		objAssignar.style.cursor="move";
+}
+
+else if (teClase(objAssignar,"zonadrop") == true){
+		objAssignar.setAttribute("ondrop", "drop(event)");
+		objAssignar.setAttribute("ondragover", "allowDrop(event)");
+		objAssignar.style.cursor="crosshair";	
+}
+
+else{
+alert('Aquest element no te cap classe vàlida!');	
+}
+	
+}
+
+/* window.onload=carregarDrag;  */
+
+function subirFichero(fichero,ruta,retorno,extra,directa){
+	
+	var padreOriginal = fichero.parentNode;
+	var padreAdoptivo = document.createElement("form");
+	padreAdoptivo.setAttribute("display",'none');
+	document.getElementsByTagName("BODY")[0].appendChild(padreAdoptivo);
+	padreAdoptivo.appendChild(fichero);	
+	
+	if(extra != null){
+	var infoExtra = document.createElement("input");
+	infoExtra.setAttribute("name","extra");
+	infoExtra.setAttribute("value",extra);
+	padreAdoptivo.appendChild(infoExtra);	
+	}
+	
+	var datos = new FormData(padreAdoptivo);
+
+	if(window.XMLHttpRequest) {
+		var peticion = new XMLHttpRequest();
+	}else if(window.ActiveXObject) {
+		var peticion = new ActiveXObject("Microsoft.XMLHTTP");
+	}
+	peticion.open("POST", ruta, true);
+	peticion.onload = function(Event) {
+		if (peticion.status == 200) {
+				//console.log(peticion.responseText);
+				padreOriginal.appendChild(fichero);
+				padreAdoptivo.parentNode.removeChild(padreAdoptivo);
+				if(directa != null){
+				instruccion = retorno+"('"+peticion.responseText+"','"+directa+"')";		
+				}
+				else{
+				instruccion = retorno+"('"+peticion.responseText+"')"; 
+				}
+				//console.log(instruccion);
+				eval(instruccion);			 
+		} else {
+		    	console.log(peticion.status);
+		}
+	};	  
+	peticion.send(datos);
+}
+
+function cursorEspera(objClicat,color){
+	document.body.style.cursor = "wait";
+	
+	if(document.getElementsByTagName("head")[0].getElementsByClassName("estilosball")[0]){
+	//console.log("estilos creados!");	
+	}	
+	else{	
+	var estilosball = document.createElement("style");
+	estilosball.className = "estilosball";
+
+	estilosball.innerHTML = ".contball{width: 50px;height: 50px;margin: 10px auto;}.ball {background-color: rgba(0,0,0,0);border: 5px solid "+color+";opacity: .9;border-top: 5px solid rgba(0,0,0,0);border-left: 5px solid rgba(0,0,0,0);border-radius: 50px;box-shadow: 0 0 35px "+color+";width: 50px;height: 50px;margin: 0 auto;-moz-animation: spin .5s infinite linear;-webkit-animation: spin .5s infinite linear;}.ball1 {background-color: rgba(0,0,0,0);border: 5px solid "+color+";opacity: .9;border-top: 5px solid rgba(0,0,0,0);border-left: 5px solid rgba(0,0,0,0);border-radius: 50px;box-shadow: 0 0 15px "+color+";width: 30px;height: 30px;margin: 10px auto;position: relative;top: -60px;left:5px;-moz-animation: spinoff .5s infinite linear;-webkit-animation: spinoff .5s infinite linear;}@-moz-keyframes spin {0% {-moz-transform: rotate(0deg);}100% {-moz-transform: rotate(360deg);}}@-moz-keyframes spinoff {0% {-moz-transform: rotate(0deg);}100% {-moz-transform: rotate(-360deg);}}@-webkit-keyframes spin {0% {-webkit-transform: rotate(0deg);}100% {-webkit-transform: rotate(360deg);}}@-webkit-keyframes spinoff {0% {-webkit-transform: rotate(0deg);}100% {-webkit-transform: rotate(-360deg);}}";	
+	document.getElementsByTagName("head")[0].appendChild(estilosball);
+	}
+	
+	var cuadroWait = document.createElement("div");
+	cuadroWait.style.position = "absolute";
+	cuadroWait.innerHTML ="<div class='contball'><div class='ball'></div><div class='ball1'></div></div>";
+	cuadroWait.className = "cuadroWait";
+	document.getElementsByTagName("body")[0].appendChild(cuadroWait);
+	cuadroWait.style.top =(objClicat.offsetTop) + 'px';
+	cuadroWait.style.left =(objClicat.offsetLeft + (objClicat.offsetWidth/2)) + 'px';
+}
+
+function cursorReady(){
+	document.body.style.cursor = "default"; 
+	
+	if (document.getElementsByClassName("cuadroWait")[0]){ 
+	document.getElementsByTagName("body")[0].removeChild(document.getElementsByClassName("cuadroWait")[0]);
+	}
+}
+
+function contenidorEspera(contenidor,color){
+//document.body.style.cursor = "wait";
+	
+if(document.getElementsByTagName("head")[0].getElementsByClassName("estilosball")[0]){
+//console.log("estilos creados!");	
+}	
+else{	
+var estilosball = document.createElement("style");
+estilosball.className = "estilosball";
+
+estilosball.innerHTML = ".contball{width: 50px;height: 50px;margin: 10px auto;}.ball {background-color: rgba(0,0,0,0);border: 5px solid "+color+";opacity: .9;border-top: 5px solid rgba(0,0,0,0);border-left: 5px solid rgba(0,0,0,0);border-radius: 50px;box-shadow: 0 0 35px "+color+";width: 50px;height: 50px;margin: 0 auto;-moz-animation: spin .5s infinite linear;-webkit-animation: spin .5s infinite linear;}.ball1 {background-color: rgba(0,0,0,0);border: 5px solid "+color+";opacity: .9;border-top: 5px solid rgba(0,0,0,0);border-left: 5px solid rgba(0,0,0,0);border-radius: 50px;box-shadow: 0 0 15px "+color+";width: 30px;height: 30px;margin: 10px auto;position: relative;top: -60px;left:5px;-moz-animation: spinoff .5s infinite linear;-webkit-animation: spinoff .5s infinite linear;}@-moz-keyframes spin {0% {-moz-transform: rotate(0deg);}100% {-moz-transform: rotate(360deg);}}@-moz-keyframes spinoff {0% {-moz-transform: rotate(0deg);}100% {-moz-transform: rotate(-360deg);}}@-webkit-keyframes spin {0% {-webkit-transform: rotate(0deg);}100% {-webkit-transform: rotate(360deg);}}@-webkit-keyframes spinoff {0% {-webkit-transform: rotate(0deg);}100% {-webkit-transform: rotate(-360deg);}}";	
+document.getElementsByTagName("head")[0].appendChild(estilosball);
+}
+
+contenidor.innerHTML ="<div class='contball'><div class='ball'></div><div class='ball1'></div></div>";
+}
+
+function blockLetras(e){ //possar a l'element -> onkeypress='return blockLetras(event);'
+    evt = e ? e : event;
+    tcl = (window.Event) ? evt.which : evt.keyCode;
+	//console.(tcl);
+    if ((tcl < 48 || tcl > 57) && (tcl != 8 && tcl != 0 && tcl != 46 && tcl != 45))
+    {
+        return false;
+    }
+    return true;
+}
+
+
+function cuadroDialogo(titulo,contenido,autocerrar,bloqueopantalla){ //genera un "alert" amb les variables titulo (titol de l'alerta) contenido (contingut de l'alerta que admet HTML),autocerrar (1 = el cuadre es tanca al clicar a sobre,0 = el cuadre no es tanca al fer click a sobre),bloqueopantalla (1 = la pantalla s'atenua en negre i es bloqueja, 0 = la pantalla no es bloca)
+var anchoVentana = window.innerWidth; 	
+var altoVentana = window.innerHeight; 	
+
+var cuadroDialogo = document.createElement("div");        
+cuadroDialogo.style.backgroundColor = "lightgray";     
+cuadroDialogo.style.border = "1px solid lightgray;";        
+cuadroDialogo.style.boxSizing = "border-box";     
+cuadroDialogo.style.boxShadow = "5px 5px 5px #888888";   
+cuadroDialogo.style.textAlign = "center";    
+cuadroDialogo.innerHTML = "<div class='bannertitulo' style='width:100%;height:30px;line-height:30px;text-align:left;background-color:black;color:white;overflow:hidden;'>&nbsp<span style='font-family:Icones Pro'>&#xe079</span>&nbsp&nbsp"+titulo+"</div><div style='width:100%;padding:20px;box-sizing:border-box;'>"+contenido+"</div>";   
+
+if(bloqueopantalla==1){
+	
+var conteCuadroDialogo = document.createElement("div");  
+conteCuadroDialogo.style.width = anchoVentana + "px";
+conteCuadroDialogo.style.height = altoVentana +"px"; 
+conteCuadroDialogo.style.backgroundColor = "rgba(0,0,0,0.8)";     	
+conteCuadroDialogo.style.position = "fixed";     	
+conteCuadroDialogo.style.top = "0px";     	
+conteCuadroDialogo.style.left = "0px"; 
+conteCuadroDialogo.style.zIndex = "9999";  
+conteCuadroDialogo.className = "hijocerrable";
+
+cuadroDialogo.style.position = "relative";   
+cuadroDialogo.style.width = (anchoVentana*0.40)+"px";  
+cuadroDialogo.style.left = (anchoVentana*0.60/2)+"px";   
+
+
+if(autocerrar==1){
+ cuadroDialogo.style.cursor = "pointer"; 		
+ cuadroDialogo.setAttribute("title", "Haga click para hacer desaparecer este aviso.");	
+ cuadroDialogo.setAttribute("onclick", "cerrarCuadroDialogo()");	
+}
+
+conteCuadroDialogo.appendChild(cuadroDialogo);    	
+document.getElementsByTagName("body")[0].appendChild(conteCuadroDialogo);    	
+var altoCuadro = parseFloat(window.getComputedStyle(cuadroDialogo).height);	
+cuadroDialogo.style.top = ((altoVentana-altoCuadro)/2)+"px"; 	
+}
+
+else{
+
+if(autocerrar==1){
+ cuadroDialogo.style.cursor = "pointer"; 		
+ cuadroDialogo.setAttribute("title", "Haga click para hacer desaparecer este aviso.");	
+ cuadroDialogo.setAttribute("onclick", "cerrarCuadroDialogo()");	
+}	
+	
+cuadroDialogo.style.position = "fixed";   
+cuadroDialogo.style.zIndex = "9999";   
+cuadroDialogo.style.width = (anchoVentana*0.40)+"px";  
+cuadroDialogo.style.left = (anchoVentana*0.60/2)+"px"; 
+cuadroDialogo.className = "hijocerrable"; 	
+
+document.getElementsByTagName("body")[0].appendChild(cuadroDialogo);    	
+var altoCuadro = parseFloat(window.getComputedStyle(cuadroDialogo).height);	
+cuadroDialogo.style.top = ((altoVentana-altoCuadro)/2)+"px"; 
+}
+
+}
+
+function cerrarCuadroDialogo(){
+	
+	var hijocerrar = event.target.closest(".hijocerrable");
+	var padrecerrar = hijocerrar.parentNode;
+	
+	padrecerrar.removeChild(hijocerrar);
+}

@@ -1,0 +1,197 @@
+/*******************BALL*************************/
+#contenidorwait{
+	position:absolute;
+	top:45%;
+	left:45%;
+}
+	
+.contball{
+	width: 50px;
+	height: 50px;
+	margin: 10px auto;
+}
+.ball {
+	background-color: rgba(0,0,0,0);
+	border: 5px solid #00008B;
+	opacity: .9;
+	border-top: 5px solid rgba(0,0,0,0);
+	border-left: 5px solid rgba(0,0,0,0);
+	border-radius: 50px;
+	box-shadow: 0 0 35px #0066FF;
+	width: 50px;
+	height: 50px;
+	margin: 0 auto;
+	-moz-animation: spin .5s infinite linear;
+	-webkit-animation: spin .5s infinite linear;
+}
+.ball1 {
+	background-color: rgba(0,0,0,0);
+	border: 5px solid #00008B;
+	opacity: .9;
+	border-top: 5px solid rgba(0,0,0,0);
+	border-left: 5px solid rgba(0,0,0,0);
+	border-radius: 50px;
+	box-shadow: 0 0 15px #0066FF;
+	width: 30px;
+	height: 30px;
+	margin: 10px auto;
+	position: relative;
+	top: -60px;
+	left:5px;
+	-moz-animation: spinoff .5s infinite linear;
+	-webkit-animation: spinoff .5s infinite linear;
+}
+
+.contball2{
+	width: 25px;
+	height: 25px;
+	margin: 5px auto;
+}
+.ball2 {
+	background-color: rgba(0,0,0,0);
+	border: 5px solid #00008B;
+	opacity: .9;
+	border-top: 5px solid rgba(0,0,0,0);
+	border-left: 5px solid rgba(0,0,0,0);
+	border-radius: 50px;
+	box-shadow: 0 0 35px #0066FF;
+	width: 25px;
+	height: 25px;
+	margin: 0 auto;
+	-moz-animation: spin .5s infinite linear;
+	-webkit-animation: spin .5s infinite linear;
+}
+.ball12 {
+	background-color: rgba(0,0,0,0);
+	border: 5px solid #00008B;
+	opacity: .9;
+	border-top: 5px solid rgba(0,0,0,0);
+	border-left: 5px solid rgba(0,0,0,0);
+	border-radius: 50px;
+	box-shadow: 0 0 15px #0066FF;
+	width: 15px;
+	height: 15px;
+	margin: 0px auto;
+	position: relative;
+	top: -30px;
+	left:5px;
+	-moz-animation: spinoff .5s infinite linear;
+	-webkit-animation: spinoff .5s infinite linear;
+}
+
+
+.contball3{
+	width: 12px;
+	height: 12px;
+	margin: 2px auto;
+}
+.ball3 {
+	background-color: rgba(0,0,0,0);
+	border: 2px solid #00008B;
+	opacity: .9;
+	border-top: 2px solid rgba(0,0,0,0);
+	border-left: 2px solid rgba(0,0,0,0);
+	border-radius: 50px;
+	box-shadow: 0 0 35px #0066FF;
+	width: 12px;
+	height: 12px;
+	margin: 0 auto;
+	-moz-animation: spin .5s infinite linear;
+	-webkit-animation: spin .5s infinite linear;
+}
+.ball13 {
+	background-color: rgba(0,0,0,0);
+	border: 2px solid #00008B;
+	opacity: .9;
+	border-top: 2px solid rgba(0,0,0,0);
+	border-left: 2px solid rgba(0,0,0,0);
+	border-radius: 50px;
+	box-shadow: 0 0 15px #0066FF;
+	width: 7px;
+	height: 7px;
+	margin: 0px auto;
+	position: relative;
+	top: -14px;
+	left:2px;
+	-moz-animation: spinoff .5s infinite linear;
+	-webkit-animation: spinoff .5s infinite linear;
+}
+
+
+.contball4{
+	width: 25px;
+	height: 25px;
+	margin: 0px auto;
+	padding-top:8px;
+}
+.ball4 {
+	background-color: rgba(0,0,0,0);
+	border: 5px solid #00008B;
+	opacity: .9;
+	border-top: 5px solid rgba(0,0,0,0);
+	border-left: 5px solid rgba(0,0,0,0);
+	border-radius: 50px;
+	box-shadow: 0 0 35px #0066FF;
+	width: 25px;
+	height: 25px;
+	margin: 0 auto;
+	-moz-animation: spin .5s infinite linear;
+	-webkit-animation: spin .5s infinite linear;
+}
+.ball14 {
+	background-color: rgba(0,0,0,0);
+	border: 5px solid #00008B;
+	opacity: .9;
+	border-top: 5px solid rgba(0,0,0,0);
+	border-left: 5px solid rgba(0,0,0,0);
+	border-radius: 50px;
+	box-shadow: 0 0 15px #0066FF;
+	width: 15px;
+	height: 15px;
+	margin: 0px auto;
+	position: relative;
+	top: -30px;
+	left:5px;
+	-moz-animation: spinoff .5s infinite linear;
+	-webkit-animation: spinoff .5s infinite linear;
+}
+
+@-moz-keyframes spin {
+	0% {
+		-moz-transform: rotate(0deg);
+	}
+
+	100% {
+		-moz-transform: rotate(360deg);
+	}
+}
+
+@-moz-keyframes spinoff {
+	0% {
+		-moz-transform: rotate(0deg);
+	}
+
+	100% {
+		-moz-transform: rotate(-360deg);
+	}
+}
+
+@-webkit-keyframes spin {
+	0% {
+		-webkit-transform: rotate(0deg);
+	}
+
+	100% {
+		-webkit-transform: rotate(360deg);
+	}
+}
+
+@-webkit-keyframes spinoff {
+	0% {
+		-webkit-transform: rotate(0deg);
+	}
+
+	100% {
+		-webkit-transform: rotate(-360deg);
+	}
+}

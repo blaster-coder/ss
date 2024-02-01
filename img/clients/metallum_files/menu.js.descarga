@@ -1,0 +1,90 @@
+var refrescarMensajeria = true;
+var tiempoRefresco =  30000;
+
+function deslogar(){
+doAjax('../libs//repositori.php','deslogarreturn','p','57');	
+}
+
+function deslogarreturn(){
+window.location	='../index.php';
+}
+ 
+function abrirVentana(url,anchura,altura,titulo) {
+    window.open(url, titulo, "directories=no, location=no, menubar=no, scrollbars=no, statusbar=no, tittlebar=no, width="+anchura+", height="+altura+"");
+}
+
+function expandirRecarregues(objRecarregues){
+	articles = document.getElementsByClassName('articlerecarregues');
+	if (articles.length > 0){
+		objRecarregues.style.width = (40 + articles[0].offsetWidth) + 'px';
+		objRecarregues.style.height = (30 * (2 + articles.length)) + 'px';
+	}
+}
+
+function reduirRecarregues(objRecarregues){
+	objRecarregues.style.width = '';
+	objRecarregues.style.height = '';
+}
+
+function amagarRecarregues(){
+	//alert(document.getElementById('recarregues').innerHTML.length);
+	if (document.getElementById('recarregues').innerHTML.length < 60) document.getElementById('recarregues').style.display = 'none';
+}
+
+
+function refrescar(){
+	 
+setInterval(function(){
+
+if(refrescarMensajeria){
+doAjax('./chat_query.php','respuestaRefrescarMensajeria','caso',7);
+}
+
+}, tiempoRefresco);
+}
+
+function respuestaRefrescarMensajeria(nmensajes){
+document.getElementById('b6').innerHTML = nmensajes;
+}	
+
+function loading(identificador){
+document.getElementById(identificador).innerHTML = '<div class="contball4"><div class="ball4"></div><div class="ball14"></div></div>';	
+}
+
+
+function mostrarPrevio(numero){
+previos = document.getElementsByClassName('previ');
+
+for(p=0;p<previos.length;p++){	
+previos[p].style.display ='none';	
+}
+
+botones =  document.getElementsByClassName('boto');
+
+for(b=0;b<botones.length;b++){
+botones[b].style.color ='';	
+botones[b].style.backgroundColor ='';	
+botones[b].style.borderRight ='';	
+}
+
+document.getElementById('p'+numero).style.display ='block';
+document.getElementById('b'+numero).style.color ='white';
+document.getElementById('b'+numero).style.backgroundColor ='orange';
+document.getElementById('b'+numero).style.borderRight ='1px solid orange';
+}
+
+function esconderPrevios(){
+previos = document.getElementsByClassName('previ');
+
+for(p=0;p<previos.length;p++){	
+previos[p].style.display ='none';	
+}
+
+botones =  document.getElementsByClassName('boto');
+
+for(b=0;b<botones.length;b++){
+botones[b].style.color ='';	
+botones[b].style.backgroundColor ='';	
+botones[b].style.borderRight ='';	
+}	
+}
